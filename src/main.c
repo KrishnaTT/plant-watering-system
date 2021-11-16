@@ -8,7 +8,7 @@
 // To run a particular example, you should remove the comment (//) in
 // front of exactly ONE of the following lines:
 
-#define BUTTON_BLINK
+//#define BUTTON_BLINK
 // #define LIGHT_SCHEDULER
 // #define TIME_RAND
 // #define KEYPAD
@@ -17,7 +17,7 @@
 // #define KEYPAD_SEVEN_SEGMENT
 // #define COLOR_LED
 // #define ROTARY_ENCODER
-// #define ANALOG
+#define ANALOG
 // #define PWM
 
 #include <stdbool.h> // booleans, i.e. true and false
@@ -39,7 +39,9 @@ int main(void)
 
     // initialize the pins to be input, output, alternate function, etc...
 
-    InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // on-board LED
+    //InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // on-board LED
+    InitializePin(GPIOA, GPIO_PIN_0, GPIO_MODE_INPUT, GPIO_PULLUP, 0);
+
 
     // note: the on-board pushbutton is fine with the default values (no internal pull-up resistor
     // is required, since there's one on the board)
@@ -64,6 +66,7 @@ int main(void)
     {
         HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
         HAL_Delay(250);  // 250 milliseconds == 1/4 second
+        //uint16_t moisture = ReadADC(&adcInstance, ADC_CHANNEL_0);
     }
 #endif
 
@@ -129,7 +132,7 @@ int main(void)
     // Use top-right button on 4x4 keypad (typically 'A') to toggle LED.
 
     InitializeKeypad();
-    while (true)
+    while (true)kkk
     {
         while (ReadKeypad() < 0);   // wait for a valid key
         int key = ReadKeypad();
