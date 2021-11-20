@@ -17,7 +17,9 @@
 // #define KEYPAD_SEVEN_SEGMENT
 // #define COLOR_LED
 // #define ROTARY_ENCODER
-#define ANALOG
+//#define ANALOG
+#define MOISTURE_SENSOR
+//#define PUMP
 // #define PWM
 
 #include <stdbool.h> // booleans, i.e. true and false
@@ -39,8 +41,8 @@ int main(void)
 
     // initialize the pins to be input, output, alternate function, etc...
 
-    //InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // on-board LED
-    InitializePin(GPIOA, GPIO_PIN_0, GPIO_MODE_INPUT, GPIO_PULLUP, 0);
+    InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // on-board LED
+    //InitializePin(GPIOA, GPIO_PIN_7, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
 
 
     // note: the on-board pushbutton is fine with the default values (no internal pull-up resistor
@@ -54,6 +56,44 @@ int main(void)
     // as mentioned above, only one of the following code sections will be used
     // (depending on which of the #define statements at the top of this file has been uncommented)
 
+#ifdef MOISTURE_SENSOR
+
+    __HAL_RCC_ADC1_CLK_ENABLE();        // enable ADC 1
+    ADC_HandleTypeDef adcInstance;      // stores an instance of the ADC
+    InitializeADC(&adcInstance, ADC1);  // initialize the ADC instance
+
+    // pin A0 is connected to channel 0 of ADC1
+    InitializePin(GPIOA, GPIO_PIN_0, GPIO_MODE_ANALOG, GPIO_NOPULL, 0);   
+
+    InitializePin(GPIOB, GPIO_PIN_10, GPIO_MODE_INPUT, GPIO_NOPULL); // pump
+    
+    while (true)
+    {
+        // read the moisture values (0 -> 0V, 2^12 -> 3.3V)
+        uint16_t raw0 = ReadADC(&adcInstance, ADC_CHANNEL_0);
+
+        // print the moisture values
+        char buff[100];
+        sprintf(buff, "Moisture Level: %hu\n", raw0); 
+        SerialPuts(buff);
+
+        if (raw0 < 1300) // loop forever, blinking the LED when the value at certain time
+        {
+            //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // trun on led
+            //HAL_Delay(250);  // 250 milliseconds == 1/4 second
+            HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10); // turn on pump?
+        }
+    }
+
+#endif
+
+#ifdef PUMP
+
+    //InitializePin(GPIOB, GPIO_PIN_10, GPIO_MODE_INPUT, GPIO_NOPULL);
+
+
+#endif
+
 #ifdef BUTTON_BLINK
     // Wait for the user to push the blue button, then blink the LED.
 
@@ -64,8 +104,9 @@ int main(void)
 
     while (1) // loop forever, blinking the LED
     {
-        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-        HAL_Delay(250);  // 250 milliseconds == 1/4 second
+        HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_7);
+        //HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, true);
+        //HAL_Delay(250);  // 250 milliseconds == 1/4 second
         //uint16_t moisture = ReadADC(&adcInstance, ADC_CHANNEL_0);
     }
 #endif
@@ -218,6 +259,7 @@ int main(void)
     }
 #endif
 
+
 #ifdef ANALOG
     // Use the ADC (Analog to Digital Converter) to read voltage values from two pins.
 
@@ -231,11 +273,12 @@ int main(void)
     {
         // read the ADC values (0 -> 0V, 2^12 -> 3.3V)
         uint16_t raw0 = ReadADC(&adcInstance, ADC_CHANNEL_0);
-        uint16_t raw1 = ReadADC(&adcInstance, ADC_CHANNEL_1);
+        //uint16_t raw1 = ReadADC(&adcInstance, ADC_CHANNEL_1);
 
         // print the ADC values
         char buff[100];
-        sprintf(buff, "Channel0: %hu, Channel1: %hu\r\n", raw0, raw1);  // hu == "unsigned short" (16 bit)
+        //sprintf(buff, "Channel0: %hu, Channel1: %hu\r\n", raw0, raw1);  // hu == "unsigned short" (16 bit)
+        sprintf(buff, "Moisture Level: %hu\n", raw0); 
         SerialPuts(buff);
     }
 #endif
