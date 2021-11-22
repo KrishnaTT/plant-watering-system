@@ -63,26 +63,42 @@ int main(void)
     InitializeADC(&adcInstance, ADC1);  // initialize the ADC instance
 
     // pin A0 is connected to channel 0 of ADC1
-    InitializePin(GPIOA, GPIO_PIN_0, GPIO_MODE_ANALOG, GPIO_NOPULL, 0);   
+    InitializePin(GPIOA, GPIO_PIN_0, GPIO_MODE_ANALOG, GPIO_NOPULL, 0);   // sensor
+    
+    //InitializePin(GPIOA, GPIO_PIN_1, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);   
 
-    InitializePin(GPIOB, GPIO_PIN_10, GPIO_MODE_INPUT, GPIO_NOPULL); // pump
+    InitializePin(GPIOB, GPIO_PIN_10, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0); // pump
     
     while (true)
     {
         // read the moisture values (0 -> 0V, 2^12 -> 3.3V)
         uint16_t raw0 = ReadADC(&adcInstance, ADC_CHANNEL_0);
 
+        //InitializePin(GPIOB, GPIO_PIN_10, GPIO_MODE_INPUT, GPIO_NOPULL, 0);
+
         // print the moisture values
         char buff[100];
         sprintf(buff, "Moisture Level: %hu\n", raw0); 
         SerialPuts(buff);
 
-        if (raw0 < 1300) // loop forever, blinking the LED when the value at certain time
-        {
-            //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // trun on led
-            //HAL_Delay(250);  // 250 milliseconds == 1/4 second
-            HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10); // turn on pump?
-        }
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 1);
+        
+        HAL_Delay(3000); // 3 sec
+
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 0);
+
+        // if (raw0 < 1900) // loop forever, blinking the LED when the value at certain time
+        // {
+        //     //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // trun on led
+        //     //HAL_Delay(250);  // 250 milliseconds == 1/4 second
+        //     //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10); // turn on pump?
+        //     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 1);
+        //     //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_1);
+        //     HAL_Delay(5000); // 5 sec
+
+        //     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 0);
+
+        // }
     }
 
 #endif
