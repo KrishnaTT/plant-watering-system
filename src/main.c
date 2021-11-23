@@ -19,7 +19,6 @@
 // #define ROTARY_ENCODER
 //#define ANALOG
 #define MOISTURE_SENSOR
-//#define PUMP
 // #define PWM
 
 #include <stdbool.h> // booleans, i.e. true and false
@@ -42,7 +41,6 @@ int main(void)
     // initialize the pins to be input, output, alternate function, etc...
 
     InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // on-board LED
-    //InitializePin(GPIOA, GPIO_PIN_7, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);
 
 
     // note: the on-board pushbutton is fine with the default values (no internal pull-up resistor
@@ -64,50 +62,36 @@ int main(void)
 
     // pin A0 is connected to channel 0 of ADC1
     InitializePin(GPIOA, GPIO_PIN_0, GPIO_MODE_ANALOG, GPIO_NOPULL, 0);   // sensor
-    
-    //InitializePin(GPIOA, GPIO_PIN_1, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);   
 
     InitializePin(GPIOB, GPIO_PIN_10, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0); // pump
     
+    while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13))
+    {
+    }
+
     while (true)
     {
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 0); // turn of pump
+
+        HAL_Delay(1800000); // 30 min delay
+        
         // read the moisture values (0 -> 0V, 2^12 -> 3.3V)
         uint16_t raw0 = ReadADC(&adcInstance, ADC_CHANNEL_0);
 
-        //InitializePin(GPIOB, GPIO_PIN_10, GPIO_MODE_INPUT, GPIO_NOPULL, 0);
-
         // print the moisture values
         char buff[100];
-        sprintf(buff, "Moisture Level: %hu\n", raw0); 
+        sprintf(buff, "Moisture Level: %hu\n", raw0); // check moisture level
         SerialPuts(buff);
 
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 1);
-        
-        HAL_Delay(3000); // 3 sec
+        if (raw0 > 1900)
+        {
+            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 1); // turn on pump
+        }
 
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 0);
-
-        // if (raw0 < 1900) // loop forever, blinking the LED when the value at certain time
-        // {
-        //     //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5); // trun on led
-        //     //HAL_Delay(250);  // 250 milliseconds == 1/4 second
-        //     //HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_10); // turn on pump?
-        //     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 1);
-        //     //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_1);
-        //     HAL_Delay(5000); // 5 sec
-
-        //     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 0);
-
-        // }
+        HAL_Delay(30000); // Waters for 30 sec, approx 150mL of water
     }
 
-#endif
-
-#ifdef PUMP
-
-    //InitializePin(GPIOB, GPIO_PIN_10, GPIO_MODE_INPUT, GPIO_NOPULL);
-
-
+    
 #endif
 
 #ifdef BUTTON_BLINK
@@ -121,9 +105,8 @@ int main(void)
     while (1) // loop forever, blinking the LED
     {
         HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_7);
-        //HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, true);
-        //HAL_Delay(250);  // 250 milliseconds == 1/4 second
-        //uint16_t moisture = ReadADC(&adcInstance, ADC_CHANNEL_0);
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, true);
+        HAL_Delay(250);  // 250 milliseconds == 1/4 second
     }
 #endif
 
