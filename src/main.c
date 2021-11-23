@@ -77,7 +77,7 @@ int main(void)
         if (raw0 < 1900)
         {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 1);
-        
+            // Changes in delay time
             HAL_Delay(8000);
 
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 0);
