@@ -69,6 +69,7 @@ int main(void)
     {
     }
 
+
     while (true)
     {
         HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 0); // turn of pump
@@ -78,12 +79,12 @@ int main(void)
         // read the moisture values (0 -> 0V, 2^12 -> 3.3V)
         uint16_t raw0 = ReadADC(&adcInstance, ADC_CHANNEL_0);
 
-        // print the moisture values
+        // print the moisture valuesssss
         char buff[100];
         sprintf(buff, "Moisture Level: %hu\n", raw0); // check moisture level
         SerialPuts(buff);
 
-        if (raw0 > 1900)
+        if (raw0 >= 1900)
         {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 1); // turn on pump
         }
@@ -91,7 +92,6 @@ int main(void)
         HAL_Delay(30000); // Waters for 30 sec, approx 150mL of water
     }
 
-    
 #endif
 
 #ifdef BUTTON_BLINK
