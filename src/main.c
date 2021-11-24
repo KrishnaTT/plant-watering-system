@@ -87,7 +87,7 @@ int main(void)
 
         HAL_Delay(3000); // Waters for 3 sec, approx 50-75mL of water
 
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 0); // turn of pump
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 0); // turn off pump
 
         HAL_Delay(1800000); // 30 min delay
     }
