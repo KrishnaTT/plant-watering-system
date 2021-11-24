@@ -42,7 +42,6 @@ int main(void)
 
     InitializePin(GPIOA, GPIO_PIN_5, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0);  // on-board LED
 
-
     // note: the on-board pushbutton is fine with the default values (no internal pull-up resistor
     // is required, since there's one on the board)
 
@@ -65,31 +64,32 @@ int main(void)
 
     InitializePin(GPIOB, GPIO_PIN_10, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, 0); // pump
     
+    // Wait for the user to push the blue button
+
     while (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13))
     {
     }
 
-
     while (true)
-    {
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 0); // turn of pump
-
-        HAL_Delay(1800000); // 30 min delay
-        
+    { 
         // read the moisture values (0 -> 0V, 2^12 -> 3.3V)
         uint16_t raw0 = ReadADC(&adcInstance, ADC_CHANNEL_0);
 
-        // print the moisture valuesssss
+        // print the moisture values
         char buff[100];
         sprintf(buff, "Moisture Level: %hu\n", raw0); // check moisture level
         SerialPuts(buff);
 
-        if (raw0 >= 1900)
+        if (raw0 > 1900)
         {
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 1); // turn on pump
         }
 
-        HAL_Delay(30000); // Waters for 30 sec, approx 150mL of water
+        HAL_Delay(3000); // Waters for 3 sec, approx 50-75mL of water
+
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_10, 0); // turn of pump
+
+        HAL_Delay(1800000); // 30 min delay
     }
 
 #endif
